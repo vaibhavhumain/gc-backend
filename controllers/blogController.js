@@ -13,19 +13,20 @@ exports.getAllBlogs = async (req, res) => {
 exports.createBlog = async (req, res) => {
   const { title, excerpt, author, date } = req.body;
 
+  console.log("🔵 Incoming blog:", req.body);
+
   if (!title || !excerpt || !author || !date) {
+    console.log("❌ Missing fields");
     return res.status(400).json({ error: 'All fields required' });
   }
 
-  console.log("REQ BODY:", req.body);
-
   try {
     const blog = new Blog({ title, excerpt, author, date });
-    const saved = await blog.save(); // ✅ define before logging
-    console.log("SAVED BLOG:", saved); // ✅ log after saving
+    const saved = await blog.save();
+    console.log("✅ Saved blog:", saved);
     res.status(201).json(saved);
   } catch (err) {
-    console.error("SAVE ERROR:", err);
+    console.error("🔥 Save error:", err);
     res.status(500).json({ error: 'Failed to save blog' });
   }
 };
