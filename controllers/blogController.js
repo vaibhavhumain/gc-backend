@@ -12,21 +12,27 @@ exports.getAllBlogs = async (req, res) => {
 
 exports.createBlog = async (req, res) => {
   const { title, excerpt, author, date } = req.body;
-
-  console.log("🔵 Incoming blog:", req.body);
+  const thumbnail = req.file ? `/uploads/${req.file.filename}` : null;
 
   if (!title || !excerpt || !author || !date) {
-    console.log("❌ Missing fields");
     return res.status(400).json({ error: 'All fields required' });
   }
 
   try {
-    const blog = new Blog({ title, excerpt, author, date });
+    const blog = new Blog({
+      title,
+      excerpt,
+      author,
+      date,
+      thumbnail: {
+        large: thumbnail || '/images/placeholder.jpg'
+      },
+    });
+
     const saved = await blog.save();
-    console.log("✅ Saved blog:", saved);
     res.status(201).json(saved);
   } catch (err) {
-    console.error("🔥 Save error:", err);
     res.status(500).json({ error: 'Failed to save blog' });
   }
 };
+ 

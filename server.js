@@ -11,12 +11,17 @@ app.use(cors());
 app.use(express.json()); 
 
 app.use('/api/blogs', blogRoutes);
+app.use('/uploads', express.static('uploads'));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
-    console.log('MongoDB connected ✅');
+    console.log("✅ MongoDB connected");
+  console.log("📦 Connected to DB:", mongoose.connection.name);
+  console.log("🧩 Cluster Host:", mongoose.connection.host);
+  console.log("🛡 Full URI:", process.env.MONGO_URI);
+
     app.listen(process.env.PORT || 5000, () =>
-      console.log(`Server running on port ${process.env.PORT || 5000}`)
+      console.log(`🚀 Server running on port ${process.env.PORT || 5000}`)
     );
   })
-  .catch((err) => console.error('MongoDB error:', err));
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
