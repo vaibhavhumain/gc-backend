@@ -1,4 +1,5 @@
 const Blog = require('../models/Blog');
+const cloudinary = require('../utils/cloudinary');
 
 exports.getAllBlogs = async (req, res) => {
   try {
@@ -11,28 +12,30 @@ exports.getAllBlogs = async (req, res) => {
 };
 
 exports.createBlog = async (req, res) => {
-  const { title, excerpt, author, date } = req.body;
-  const thumbnail = req.file ? `/uploads/${req.file.filename}` : null;
-
-  if (!title || !excerpt || !author || !date) {
-    return res.status(400).json({ error: 'All fields required' });
-  }
+  const { title, excerpt, author, date, imageBase64 } = req.body;
 
   try {
+    let imageUrl = "";
+
+    if (imageBase64) {
+      const uploaded = await cloudinary.uploader.upload(imageBase64, {
+        folder: 'gc-blogs'
+      });
+      imageUrl = uploaded.secure_url;
+    }
+
     const blog = new Blog({
       title,
       excerpt,
       author,
       date,
-      thumbnail: {
-        large: thumbnail || '/images/placeholder.jpg'
-      },
+      thumbnail: { large: imageUrl },
     });
 
     const saved = await blog.save();
     res.status(201).json(saved);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to save blog' });
+  } catch (error) {
+    console.error('❌ Blog upload failed', error);
+    res.status(500).json({ error: 'Failed to upload blog' });
   }
 };
- 
