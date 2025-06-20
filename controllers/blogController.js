@@ -12,6 +12,7 @@ exports.getAllBlogs = async (req, res) => {
 };
 
 exports.createBlog = async (req, res) => {
+  console.log("🔥 /api/blogs hit with body:", req.body);
   const { title, excerpt, author, date, imageBase64 } = req.body;
 
   console.log("📝 Received blog data:", { title, excerpt, author, date });
