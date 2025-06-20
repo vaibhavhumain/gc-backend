@@ -14,14 +14,23 @@ exports.getAllBlogs = async (req, res) => {
 exports.createBlog = async (req, res) => {
   const { title, excerpt, author, date, imageBase64 } = req.body;
 
+  console.log("📝 Received blog data:", { title, excerpt, author, date });
+  if (!title || !excerpt || !author || !date) {
+    return res.status(400).json({ error: 'All fields (title, excerpt, author, date) are required' });
+  }
+
   try {
     let imageUrl = "";
 
-    if (imageBase64) {
+    if (imageBase64 && imageBase64.startsWith('data:image')) {
+      console.log("🖼 Uploading image to Cloudinary...");
       const uploaded = await cloudinary.uploader.upload(imageBase64, {
         folder: 'gc-blogs'
       });
       imageUrl = uploaded.secure_url;
+      console.log("✅ Uploaded image URL:", imageUrl);
+    } else {
+      console.log("⚠️ No valid imageBase64 provided.");
     }
 
     const blog = new Blog({
@@ -32,10 +41,13 @@ exports.createBlog = async (req, res) => {
       thumbnail: { large: imageUrl },
     });
 
+    console.log("📦 Saving blog to DB...");
     const saved = await blog.save();
+    console.log("✅ Blog saved:", saved);
+
     res.status(201).json(saved);
   } catch (error) {
-    console.error('❌ Blog upload failed', error);
+    console.error('❌ Blog creation failed:', error);
     res.status(500).json({ error: 'Failed to upload blog' });
   }
 };
