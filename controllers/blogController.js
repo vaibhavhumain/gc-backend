@@ -52,3 +52,14 @@ exports.createBlog = async (req, res) => {
     res.status(500).json({ error: 'Failed to upload blog' });
   }
 };
+
+exports.deleteAllBlogs = async (req, res) => {
+  try {
+    const result = await Blog.deleteMany({});
+    console.log(`🗑 Deleted ${result.deletedCount} blogs from DB.`);
+    res.status(200).json({ message: `${result.deletedCount} blogs deleted successfully.` });
+  } catch (error) {
+    console.error('❌ Failed to delete blogs:', error);
+    res.status(500).json({ error: 'Failed to delete all blogs' });
+  }
+};
